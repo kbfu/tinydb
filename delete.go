@@ -6,6 +6,7 @@ type Delete struct {
 	db    *TinyDb
 	from  string
 	where string
+	err   error
 }
 
 func (db *TinyDb) Delete() *Delete {
@@ -19,8 +20,8 @@ func (d *Delete) From(table string) *Delete {
 	return d
 }
 
-func (d *Delete) Where(condition M) *Delete {
-	d.where = Where(condition)
+func (d *Delete) Where(condition ...WhereConditioner) *Delete {
+	d.where, d.err = Where(condition...)
 	return d
 }
 

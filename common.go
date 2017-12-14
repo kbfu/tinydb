@@ -2,32 +2,77 @@ package tinydb
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"reflect"
 )
 
 type M map[string]interface{}
 
-func Where(condition M) string {
-	var where []string
-	for k, v := range condition {
+type EqualStruct struct {
+	M
+}
+
+type LikeStruct struct {
+	M
+}
+
+func (e *EqualStruct) Where() (wheres []string, err error) {
+	for k, v := range e.M {
 		switch reflect.ValueOf(v).Kind() {
 		case reflect.Int:
-			where = append(where, fmt.Sprintf("%s = %v", k, v))
+			wheres = append(wheres, fmt.Sprintf("%s = %v", k, v))
 		case reflect.String:
-			where = append(where, fmt.Sprintf("%s = \"%v\"", k, v))
+			wheres = append(wheres, fmt.Sprintf("%s = \"%v\"", k, v))
+		default:
+			return wheres, errors.New("type not supported")
 		}
+	}
+	return
+}
 
+func Like(pairs M) *LikeStruct {
+	return &LikeStruct{pairs}
+}
+
+func Equal(paris M) *EqualStruct {
+	return &EqualStruct{paris}
+}
+
+func (l *LikeStruct) Where() (wheres []string, err error) {
+	for k, v := range l.M {
+		switch reflect.ValueOf(v).Kind() {
+		case reflect.String, reflect.Int:
+			wheres = append(wheres, fmt.Sprintf("%s like \"%v\"", k, v))
+		default:
+			return wheres, errors.New("type not supported")
+		}
+	}
+	return
+}
+
+type WhereConditioner interface {
+	Where() (wheres []string, err error)
+}
+
+func Where(condition ...WhereConditioner) (where string, err error) {
+	var wheres []string
+	for _, v := range condition {
+		pairs, err := v.Where()
+		if err != nil {
+			return where, err
+		}
+		wheres = append(wheres, pairs...)
 	}
 	whereStr := ""
-	for k, v := range where {
-		if k != len(where)-1 {
+	for k, v := range wheres {
+		if k != len(wheres)-1 {
 			whereStr = whereStr + v + " AND "
 		} else {
 			whereStr = whereStr + v
 		}
 	}
-	return "WHERE " + whereStr
+	return "WHERE " + whereStr, nil
 }
 
 func From(table interface{}) (from string) {

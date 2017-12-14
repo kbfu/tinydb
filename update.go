@@ -9,6 +9,7 @@ type Update struct {
 	set   string
 	table string
 	where string
+	err   error
 }
 
 func (db *TinyDb) Update(table string) *Update {
@@ -18,8 +19,8 @@ func (db *TinyDb) Update(table string) *Update {
 	return &u
 }
 
-func (u *Update) Where(condition M) *Update {
-	u.where = Where(condition)
+func (u *Update) Where(condition ...WhereConditioner) *Update {
+	u.where, u.err = Where(condition...)
 	return u
 }
 
