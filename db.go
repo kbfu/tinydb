@@ -9,8 +9,7 @@ type TinyDb struct {
 	*sql.DB
 }
 
-func New(dbType string, user string, password string, host string, port string, database string,
-	charset string) (db TinyDb, err error) {
+func New(dbType, user, password, host, port, database, charset string) (db TinyDb, err error) {
 	sqlDb, err := sql.Open(dbType, fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s", user, password, host, port,
 		database, charset))
 	if err != nil {

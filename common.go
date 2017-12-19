@@ -23,7 +23,7 @@ func (e *EqualStruct) Where() (wheres []string, err error) {
 		case reflect.Int:
 			wheres = append(wheres, fmt.Sprintf("%s = %v", k, v))
 		case reflect.String:
-			wheres = append(wheres, fmt.Sprintf("%s = \"%v\"", k, v))
+			wheres = append(wheres, fmt.Sprintf("%s = '%v'", k, v))
 		default:
 			return wheres, errors.New("type not supported")
 		}
@@ -43,7 +43,7 @@ func (l *LikeStruct) Where() (wheres []string, err error) {
 	for k, v := range l.M {
 		switch reflect.ValueOf(v).Kind() {
 		case reflect.String, reflect.Int:
-			wheres = append(wheres, fmt.Sprintf("%s like \"%v\"", k, v))
+			wheres = append(wheres, fmt.Sprintf("%s like '%v'", k, v))
 		default:
 			return wheres, errors.New("type not supported")
 		}

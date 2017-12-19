@@ -46,7 +46,6 @@ func (s *Select) As(alias string) *Select {
 }
 
 func (s *Select) Exec(obj interface{}) (err error) {
-	fmt.Println(fmt.Sprintf("SELECT %s %s %s %s", s.columns, s.from, s.where, s.as))
 	rows, err := s.db.Query(fmt.Sprintf("SELECT %s %s %s %s", s.columns, s.from, s.where, s.as))
 	if err != nil {
 		return err

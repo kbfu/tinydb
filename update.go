@@ -27,7 +27,7 @@ func (u *Update) Where(condition ...WhereConditioner) *Update {
 func (u *Update) Set(condition M) *Update {
 	var set []string
 	for k, v := range condition {
-		set = append(set, fmt.Sprintf("%s = \"%s\"", k, v))
+		set = append(set, fmt.Sprintf("%s = '%s'", k, v))
 	}
 	setStr := ""
 	for k, v := range set {
