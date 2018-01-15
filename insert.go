@@ -40,9 +40,9 @@ func (i *Insert) Values(values ...interface{}) *Insert {
 	vals := "VALUES ("
 	for k, v := range values {
 		if k != len(values)-1 {
-			vals = vals + fmt.Sprintf("'%s'", v) + ","
+			vals = vals + fmt.Sprintf("'%v'", v) + ","
 		} else {
-			vals = vals + fmt.Sprintf("'%s'", v) + ")"
+			vals = vals + fmt.Sprintf("'%v'", v) + ")"
 		}
 	}
 	i.values = vals

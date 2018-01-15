@@ -92,5 +92,8 @@ func (s *Select) Exec(obj interface{}) (err error) {
 	if err != nil {
 		return err
 	}
+	if s.err != nil {
+		return s.err
+	}
 	return
 }

@@ -30,5 +30,8 @@ func (d *Delete) Exec() (err error) {
 	if err != nil {
 		return err
 	}
+	if d.err != nil {
+		return d.err
+	}
 	return
 }

@@ -27,7 +27,7 @@ func (u *Update) Where(condition ...WhereConditioner) *Update {
 func (u *Update) Set(condition M) *Update {
 	var set []string
 	for k, v := range condition {
-		set = append(set, fmt.Sprintf("%s = '%s'", k, v))
+		set = append(set, fmt.Sprintf("%s = '%v'", k, v))
 	}
 	setStr := ""
 	for k, v := range set {
@@ -45,6 +45,9 @@ func (u *Update) Exec() (err error) {
 	_, err = Dui(u.db.DB, fmt.Sprintf("UPDATE %s %s %s", u.table, u.set, u.where))
 	if err != nil {
 		return err
+	}
+	if u.err != nil {
+		return u.err
 	}
 	return
 }

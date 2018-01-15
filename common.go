@@ -20,7 +20,7 @@ type LikeStruct struct {
 func (e *EqualStruct) Where() (wheres []string, err error) {
 	for k, v := range e.M {
 		switch reflect.ValueOf(v).Kind() {
-		case reflect.Int:
+		case reflect.Int, reflect.Int64:
 			wheres = append(wheres, fmt.Sprintf("%s = %v", k, v))
 		case reflect.String:
 			wheres = append(wheres, fmt.Sprintf("%s = '%v'", k, v))
