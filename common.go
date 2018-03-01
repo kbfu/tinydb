@@ -17,6 +17,30 @@ type LikeStruct struct {
 	M
 }
 
+type InStruct struct {
+	M
+}
+
+func (i *InStruct) Where() (wheres []string, err error) {
+	for k, v := range i.M {
+		in := fmt.Sprintf("%s in (", k)
+		switch reflect.ValueOf(v).Kind() {
+		case reflect.Slice:
+			for k, val := range v.([]string) {
+				if k == len(v.([]string))-1 {
+					in += fmt.Sprintf("'%v')", val)
+				} else {
+					in += fmt.Sprintf("'%v',", val)
+				}
+			}
+			wheres = append(wheres, in)
+		default:
+			return wheres, errors.New("type not supported")
+		}
+	}
+	return
+}
+
 func (e *EqualStruct) Where() (wheres []string, err error) {
 	for k, v := range e.M {
 		switch reflect.ValueOf(v).Kind() {
@@ -35,8 +59,12 @@ func Like(pairs M) *LikeStruct {
 	return &LikeStruct{pairs}
 }
 
-func Equal(paris M) *EqualStruct {
-	return &EqualStruct{paris}
+func Equal(pairs M) *EqualStruct {
+	return &EqualStruct{pairs}
+}
+
+func In(pairs M) *InStruct {
+	return &InStruct{pairs}
 }
 
 func (l *LikeStruct) Where() (wheres []string, err error) {
