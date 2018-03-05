@@ -15,16 +15,72 @@ type Select struct {
 	err     error
 }
 
-func (db *TinyDb) Select(columns ...string) *Select {
-	var s Select
-	s.db = db
+type Columner interface {
+	Cols() string
+}
+
+type Counter interface {
+	Count() string
+	Columner
+}
+
+type CountType struct {
+	Col string
+	ColumnType
+}
+
+type ColumnType struct {
+	ColNames []string
+}
+
+func (c *CountType) Count() (col string) {
+	if c.Col == "*" {
+		col = fmt.Sprintf("count(%s)", c.Col)
+	} else {
+		col = fmt.Sprintf("count(`%s`)", c.Col)
+	}
+	return
+}
+
+func Count(col string) *CountType {
+	c := CountType{}
+	c.Col = col
+	return &c
+}
+
+func (c *ColumnType) Cols() string {
 	cols := ""
-	for k, v := range columns {
-		if k != len(columns)-1 {
-			cols = cols + v + ","
+	for k, v := range c.ColNames {
+		if k != len(c.ColNames)-1 {
+			cols = cols + fmt.Sprintf("`%s`,", v)
 		} else {
-			cols = cols + v
+			cols = cols + fmt.Sprintf("`%s`", v)
 		}
+	}
+	return cols
+}
+
+func Columns(cols ...string) *ColumnType {
+	c := ColumnType{}
+	for _, v := range cols {
+		c.ColNames = append(c.ColNames, v)
+	}
+	return &c
+}
+
+func (db *TinyDb) Select(columner Columner) *Select {
+	var (
+		s    Select
+		cols string
+	)
+	s.db = db
+	switch columner.(type) {
+	case Counter:
+		cols = columner.(Counter).Count()
+	case Columner:
+		cols = columner.Cols()
+	default:
+		s.err = errors.New("not implemented")
 	}
 	s.columns = cols
 	return &s
@@ -46,6 +102,9 @@ func (s *Select) As(alias string) *Select {
 }
 
 func (s *Select) Exec(obj interface{}) (err error) {
+	if s.err != nil {
+		return s.err
+	}
 	rows, err := s.db.Query(fmt.Sprintf("SELECT %s %s %s %s", s.columns, s.from, s.where, s.as))
 	if err != nil {
 		return err
@@ -90,10 +149,7 @@ func (s *Select) Exec(obj interface{}) (err error) {
 	}
 	err = rows.Err()
 	if err != nil {
-		return err
-	}
-	if s.err != nil {
-		return s.err
+		return
 	}
 	return
 }

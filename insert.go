@@ -27,9 +27,9 @@ func (i *Insert) Columns(columns ...string) *Insert {
 	}
 	for k, v := range columns {
 		if k != len(columns)-1 {
-			cols = cols + v + ","
+			cols = cols + fmt.Sprintf("`%s`,", v)
 		} else {
-			cols = cols + v + ")"
+			cols = cols + fmt.Sprintf("`%s`)", v)
 		}
 	}
 	i.columns = cols
