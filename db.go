@@ -3,10 +3,12 @@ package tinydb
 import (
 	"database/sql"
 	"fmt"
+	"log"
 )
 
 type TinyDb struct {
-	*sql.DB
+	sqlDb *sql.DB
+	Debug bool
 }
 
 func New(dbType, user, password, host, port, database, charset string) (db TinyDb, err error) {
@@ -15,14 +17,24 @@ func New(dbType, user, password, host, port, database, charset string) (db TinyD
 	if err != nil {
 		return db, err
 	}
-	db.DB = sqlDb
+	db.sqlDb = sqlDb
 	return db, err
 }
 
 func (db *TinyDb) SetMaxIdleConns(n int) {
-	db.DB.SetMaxIdleConns(n)
+	db.sqlDb.SetMaxIdleConns(n)
 }
 
 func (db *TinyDb) SetMaxOpenConns(n int) {
-	db.DB.SetMaxOpenConns(n)
+	db.sqlDb.SetMaxOpenConns(n)
+}
+
+func (db *TinyDb) SetDebug() {
+	db.Debug = true
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+}
+
+func (db *TinyDb) Ping() error {
+	err := db.sqlDb.Ping()
+	return err
 }
