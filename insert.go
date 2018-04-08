@@ -1,6 +1,10 @@
 package tinydb
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+	"log"
+)
 
 type Insert struct {
 	db      *TinyDb
@@ -40,9 +44,21 @@ func (i *Insert) Values(values ...interface{}) *Insert {
 	vals := "VALUES ("
 	for k, v := range values {
 		if k != len(values)-1 {
-			vals = vals + fmt.Sprintf("'%v'", v) + ","
+			switch v.(type) {
+			case string:
+				vals = vals + fmt.Sprintf("'%s'", strings.Replace(v.(string), "\\n", "\\\\n", -1)) + ","
+				vals = strings.Replace(vals, "\\\"", "\\\\\"", -1)
+			default:
+				vals = vals + fmt.Sprintf("'%v'", v) + ","
+			}
 		} else {
-			vals = vals + fmt.Sprintf("'%v'", v) + ")"
+			switch v.(type) {
+			case string:
+				vals = vals + fmt.Sprintf("'%s'", strings.Replace(v.(string), "\\n", "\\\\n", -1)) + ")"
+				vals = strings.Replace(vals, "\\\"", "\\\\\"", -1)
+			default:
+				vals = vals + fmt.Sprintf("'%v'", v) + ")"
+			}
 		}
 	}
 	i.values = vals
@@ -50,7 +66,11 @@ func (i *Insert) Values(values ...interface{}) *Insert {
 }
 
 func (i *Insert) Exec() (id int64, err error) {
-	r, err := Dui(i.db.DB, fmt.Sprintf("INSERT INTO %s %s %s", i.table, i.columns, i.values))
+	if i.db.Debug {
+		log.Println(i.db.sqlDb)
+		log.Println(fmt.Sprintf("INSERT INTO %s %s %s", i.table, i.columns, i.values))
+	}
+	r, err := Dui(i.db.sqlDb, fmt.Sprintf("INSERT INTO %s %s %s", i.table, i.columns, i.values))
 	if err != nil {
 		return id, err
 	}
