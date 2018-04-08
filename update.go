@@ -2,6 +2,8 @@ package tinydb
 
 import (
 	"fmt"
+	"strings"
+	"log"
 )
 
 type Update struct {
@@ -27,7 +29,15 @@ func (u *Update) Where(condition ...WhereConditioner) *Update {
 func (u *Update) Set(condition M) *Update {
 	var set []string
 	for k, v := range condition {
-		set = append(set, fmt.Sprintf("`%s` = '%v'", k, v))
+		switch v.(type) {
+		case string:
+			val := strings.Replace(v.(string), "\\n", "\\\\n",-1)
+			val = strings.Replace(val, "\"", "\\\"", -1)
+			set = append(set, fmt.Sprintf("`%s` = '%s'", k, val))
+		default:
+			set = append(set, fmt.Sprintf("`%s` = '%v'", k, v))
+		}
+
 	}
 	setStr := ""
 	for k, v := range set {
@@ -42,7 +52,11 @@ func (u *Update) Set(condition M) *Update {
 }
 
 func (u *Update) Exec() (err error) {
-	_, err = Dui(u.db.DB, fmt.Sprintf("UPDATE %s %s %s", u.table, u.set, u.where))
+	if u.db.Debug {
+		log.Println(u.db.sqlDb)
+		log.Println(fmt.Sprintf("UPDATE %s %s %s", u.table, u.set, u.where))
+	}
+	_, err = Dui(u.db.sqlDb, fmt.Sprintf("UPDATE %s %s %s", u.table, u.set, u.where))
 	if err != nil {
 		return err
 	}

@@ -1,6 +1,9 @@
 package tinydb
 
-import "fmt"
+import (
+	"fmt"
+	"log"
+)
 
 type Delete struct {
 	db    *TinyDb
@@ -26,7 +29,11 @@ func (d *Delete) Where(condition ...WhereConditioner) *Delete {
 }
 
 func (d *Delete) Exec() (err error) {
-	_, err = Dui(d.db.DB, fmt.Sprintf("DELETE %s %s", d.from, d.where))
+	if d.db.Debug {
+		log.Println(d.db.sqlDb)
+		log.Println(fmt.Sprintf("DELETE %s %s", d.from, d.where))
+	}
+	_, err = Dui(d.db.sqlDb, fmt.Sprintf("DELETE %s %s", d.from, d.where))
 	if err != nil {
 		return err
 	}

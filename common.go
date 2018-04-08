@@ -24,16 +24,40 @@ type InStruct struct {
 func (i *InStruct) Where() (wheres []string, err error) {
 	for k, v := range i.M {
 		in := fmt.Sprintf("%s in (", k)
-		switch reflect.ValueOf(v).Kind() {
+		val := reflect.ValueOf(v)
+		switch val.Kind() {
 		case reflect.Slice:
-			for k, val := range v.([]string) {
-				if k == len(v.([]string))-1 {
-					in += fmt.Sprintf("'%v')", val)
-				} else {
-					in += fmt.Sprintf("'%v',", val)
+			switch reflect.New(val.Type().Elem()).Elem().Kind() {
+			case reflect.String:
+				for k, val := range v.([]string) {
+					if k == len(v.([]string))-1 {
+						in += fmt.Sprintf("'%s')", val)
+					} else {
+						in += fmt.Sprintf("'%s',", val)
+					}
 				}
+				wheres = append(wheres, in)
+			case reflect.Int:
+				for k, val := range v.([]int) {
+					if k == len(v.([]int))-1 {
+						in += fmt.Sprintf("'%v')", val)
+					} else {
+						in += fmt.Sprintf("'%v',", val)
+					}
+				}
+				wheres = append(wheres, in)
+			case reflect.Int64:
+				for k, val := range v.([]int64) {
+					if k == len(v.([]int64))-1 {
+						in += fmt.Sprintf("'%v')", val)
+					} else {
+						in += fmt.Sprintf("'%v',", val)
+					}
+				}
+				wheres = append(wheres, in)
+			default:
+				return wheres, errors.New("type not supported")
 			}
-			wheres = append(wheres, in)
 		default:
 			return wheres, errors.New("type not supported")
 		}
@@ -44,9 +68,7 @@ func (i *InStruct) Where() (wheres []string, err error) {
 func (e *EqualStruct) Where() (wheres []string, err error) {
 	for k, v := range e.M {
 		switch reflect.ValueOf(v).Kind() {
-		case reflect.Int, reflect.Int64:
-			wheres = append(wheres, fmt.Sprintf("`%s` = %v", k, v))
-		case reflect.String:
+		case reflect.Int, reflect.Int64, reflect.String:
 			wheres = append(wheres, fmt.Sprintf("`%s` = '%v'", k, v))
 		default:
 			return wheres, errors.New("type not supported")
