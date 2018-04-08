@@ -66,10 +66,6 @@ func (i *Insert) Values(values ...interface{}) *Insert {
 }
 
 func (i *Insert) Exec() (id int64, err error) {
-	if i.db.Debug {
-		log.Println(i.db.sqlDb)
-		log.Println(fmt.Sprintf("INSERT INTO %s %s %s", i.table, i.columns, i.values))
-	}
 	r, err := Dui(i.db.sqlDb, fmt.Sprintf("INSERT INTO %s %s %s", i.table, i.columns, i.values))
 	if err != nil {
 		return id, err
