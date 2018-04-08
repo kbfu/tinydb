@@ -3,7 +3,6 @@ package tinydb
 import (
 	"fmt"
 	"strings"
-	"log"
 )
 
 type Insert struct {
