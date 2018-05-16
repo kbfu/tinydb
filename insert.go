@@ -45,16 +45,18 @@ func (i *Insert) Values(values ...interface{}) *Insert {
 		if k != len(values)-1 {
 			switch v.(type) {
 			case string:
-				vals = vals + fmt.Sprintf("'%s'", strings.Replace(v.(string), "\\n", "\\\\n", -1)) + ","
-				vals = strings.Replace(vals, "\\\"", "\\\\\"", -1)
+				temp := strings.Replace(v.(string), "\\\"", "\\\\\"", -1)
+				temp = strings.Replace(temp, "'", "\\'", -1)
+				vals = vals + fmt.Sprintf("'%s'", strings.Replace(temp, "\\n", "\\\\n", -1)) + ","
 			default:
 				vals = vals + fmt.Sprintf("'%v'", v) + ","
 			}
 		} else {
 			switch v.(type) {
 			case string:
-				vals = vals + fmt.Sprintf("'%s'", strings.Replace(v.(string), "\\n", "\\\\n", -1)) + ")"
-				vals = strings.Replace(vals, "\\\"", "\\\\\"", -1)
+				temp := strings.Replace(v.(string), "\\\"", "\\\\\"", -1)
+				temp = strings.Replace(temp, "'", "\\'", -1)
+				vals = vals + fmt.Sprintf("'%s'", strings.Replace(temp, "\\n", "\\\\n", -1)) + ")"
 			default:
 				vals = vals + fmt.Sprintf("'%v'", v) + ")"
 			}
@@ -65,6 +67,10 @@ func (i *Insert) Values(values ...interface{}) *Insert {
 }
 
 func (i *Insert) Exec() (id int64, err error) {
+	if i.db.Debug {
+		fmt.Println(i.db.sqlDb)
+		fmt.Println(fmt.Sprintf("INSERT INTO %s %s %s", i.table, i.columns, i.values))
+	}
 	r, err := Dui(i.db.sqlDb, fmt.Sprintf("INSERT INTO %s %s %s", i.table, i.columns, i.values))
 	if err != nil {
 		return id, err

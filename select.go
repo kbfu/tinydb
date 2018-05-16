@@ -4,7 +4,6 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
-	"log"
 )
 
 type Select struct {
@@ -107,8 +106,8 @@ func (s *Select) Exec(obj interface{}) (err error) {
 		return s.err
 	}
 	if s.db.Debug {
-		log.Println(s.db.sqlDb)
-		log.Println(fmt.Sprintf("SELECT %s %s %s %s", s.columns, s.from, s.where, s.as))
+		fmt.Println(s.db.sqlDb)
+		fmt.Println(fmt.Sprintf("SELECT %s %s %s %s", s.columns, s.from, s.where, s.as))
 	}
 	rows, err := s.db.sqlDb.Query(fmt.Sprintf("SELECT %s %s %s %s", s.columns, s.from, s.where, s.as))
 	if err != nil {
