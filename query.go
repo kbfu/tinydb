@@ -20,7 +20,11 @@ func (db *TinyDb) Query(sql string, args ...string) *Query {
 	q.db = *db
 	q.sql = sql
 	q.args = args
-	q.rows, q.err = db.sqlDb.Query(sql, args)
+	if len(args) > 0 {
+		q.rows, q.err = db.sqlDb.Query(sql, args)
+	} else {
+		q.rows, q.err = db.sqlDb.Query(sql)
+	}
 	return &q
 }
 

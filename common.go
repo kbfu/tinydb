@@ -8,7 +8,11 @@ func Dui(db *sql.DB, sql string, args ...string) (r sql.Result, err error) {
 	if err != nil {
 		return r, err
 	}
-	r, err = tx.Exec(sql, args)
+	if len(args) > 0 {
+		r, err = tx.Exec(sql, args)
+	} else {
+		r, err = tx.Exec(sql)
+	}
 	if err != nil {
 		return r, err
 	}
