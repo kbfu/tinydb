@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strings"
 )
 
 type Query struct {
@@ -45,18 +46,33 @@ func (q *Query) Get(obj interface{}) (err error) {
 	for q.rows.Next() {
 		var fields []interface{}
 		var elem reflect.Value
+		columns, _ := q.rows.Columns()
 		switch v.Kind() {
 		case reflect.Struct:
-			fields = make([]interface{}, v.NumField())
 			for i := 0; i < v.NumField(); i++ {
-				fields[i] = v.Field(i).Addr().Interface()
+				tag := v.Type().Field(i).Tag.Get("db")
+				if tag == "" {
+					tag = v.Type().Field(i).Name
+				}
+				for _, c := range columns {
+					if strings.ToLower(tag) == strings.ToLower(c) {
+						fields = append(fields, v.Field(i).Addr().Interface())
+					}
+				}
 			}
 		case reflect.Slice:
 			elem = reflect.New(v.Type().Elem()).Elem()
 			if elem.Kind() == reflect.Struct {
-				fields = make([]interface{}, elem.NumField())
 				for i := 0; i < elem.NumField(); i++ {
-					fields[i] = elem.Field(i).Addr().Interface()
+					tag := elem.Type().Field(i).Tag.Get("db")
+					if tag == "" {
+						tag = v.Type().Field(i).Name
+					}
+					for _, c := range columns {
+						if strings.ToLower(tag) == strings.ToLower(c) {
+							fields = append(fields, elem.Field(i).Addr().Interface())
+						}
+					}
 				}
 			} else {
 				fields = make([]interface{}, 1)
@@ -66,6 +82,8 @@ func (q *Query) Get(obj interface{}) (err error) {
 			fields = make([]interface{}, 1)
 			fields[0] = v.Addr().Interface()
 		}
+		// check tag
+		fmt.Println(q.rows.Columns())
 		err := q.rows.Scan(fields...)
 		if err != nil {
 			return err
