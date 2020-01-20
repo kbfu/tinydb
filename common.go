@@ -9,7 +9,7 @@ func Dui(db *sql.DB, sql string, args ...interface{}) (r sql.Result, err error) 
 		return r, err
 	}
 	if len(args) > 0 {
-		r, err = tx.Exec(sql, args)
+		r, err = tx.Exec(sql, args...)
 	} else {
 		r, err = tx.Exec(sql)
 	}

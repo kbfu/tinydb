@@ -22,7 +22,7 @@ func (db *TinyDb) Query(sql string, args ...interface{}) *Query {
 	q.sql = sql
 	q.args = args
 	if len(args) > 0 {
-		q.rows, q.err = db.sqlDb.Query(sql, args)
+		q.rows, q.err = db.sqlDb.Query(sql, args...)
 	} else {
 		q.rows, q.err = db.sqlDb.Query(sql)
 	}
