@@ -83,7 +83,6 @@ func (q *Query) Get(obj interface{}) (err error) {
 			fields[0] = v.Addr().Interface()
 		}
 		// check tag
-		fmt.Println(q.rows.Columns())
 		err := q.rows.Scan(fields...)
 		if err != nil {
 			return err
