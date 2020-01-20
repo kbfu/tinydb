@@ -12,7 +12,7 @@ type Exec struct {
 	args []string
 }
 
-func (db *TinyDb) Exec(sql string, args ...string) (result sql.Result, err error) {
+func (db *TinyDb) Exec(sql string, args ...interface{}) (result sql.Result, err error) {
 	if db.Debug {
 		fmt.Println(db.sqlDb)
 		fmt.Println(sql, args)

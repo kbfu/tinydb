@@ -2,7 +2,7 @@ package tinydb
 
 import "database/sql"
 
-func Dui(db *sql.DB, sql string, args ...string) (r sql.Result, err error) {
+func Dui(db *sql.DB, sql string, args ...interface{}) (r sql.Result, err error) {
 	tx, err := db.Begin()
 	defer tx.Rollback()
 	if err != nil {

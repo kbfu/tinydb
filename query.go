@@ -12,10 +12,10 @@ type Query struct {
 	err  error
 	db   TinyDb
 	sql  string
-	args []string
+	args []interface{}
 }
 
-func (db *TinyDb) Query(sql string, args ...string) *Query {
+func (db *TinyDb) Query(sql string, args ...interface{}) *Query {
 	var q Query
 	q.db = *db
 	q.sql = sql
