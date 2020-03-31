@@ -4,7 +4,6 @@ import "database/sql"
 
 func Dui(db *sql.DB, sql string, args ...interface{}) (r sql.Result, err error) {
 	tx, err := db.Begin()
-	defer tx.Rollback()
 	if err != nil {
 		return r, err
 	}
@@ -13,11 +12,9 @@ func Dui(db *sql.DB, sql string, args ...interface{}) (r sql.Result, err error) 
 	} else {
 		r, err = tx.Exec(sql)
 	}
-	if err != nil {
-		return r, err
-	}
 	err = tx.Commit()
 	if err != nil {
+		tx.Rollback()
 		return r, err
 	}
 	return
