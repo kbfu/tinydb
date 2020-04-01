@@ -12,7 +12,7 @@ type TinyDb struct {
 }
 
 func New(dbType, user, password, host, port, database, charset string) (db TinyDb, err error) {
-	sqlDb, err := sql.Open(dbType, fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s", user, password, host, port,
+	sqlDb, err := sql.Open(dbType, fmt.Sprintf("%s:%s@tcp(%s:%s)/%s?charset=%s&parseTime=true", user, password, host, port,
 		database, charset))
 	if err != nil {
 		return db, err
